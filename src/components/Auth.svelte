@@ -8,8 +8,11 @@
 	const dispatch = createEventDispatcher();
 
 	async function handleSignIn() {
-		const { error } = await signInWithGoogle();
-		if (error) console.error('Error signing in:', error);
+		try {
+			await signInWithGoogle();
+		} catch (error) {
+			console.error('Error signing in:', error);
+		}
 	}
 
 	async function handleSignOut() {

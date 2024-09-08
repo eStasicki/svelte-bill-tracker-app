@@ -11,12 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 function getRedirectTo() {
   if (typeof window !== 'undefined') {
-    // Sprawdzamy, czy jesteśmy w środowisku przeglądarki
-    return window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
-      ? `${window.location.origin}/auth/callback`
-      : `${window.location.origin}/auth/callback`
+    return `${window.location.origin}/auth/callback`
   }
-  // Dla SSR używamy domyślnego URL
   return '/auth/callback'
 }
 
@@ -36,10 +32,12 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: getRedirectTo()
+      redirectTo: `${window.location.origin}/auth/callback`
     }
   })
-  return { data, error }
+  
+  if (error) throw error
+  return data
 }
 
 export async function signOut() {

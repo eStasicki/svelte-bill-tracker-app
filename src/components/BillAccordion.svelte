@@ -4,7 +4,7 @@
 	import type { Bill } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-
+	export let userId: string;
 	export let bills: Bill[];
 
 	const dispatch = createEventDispatcher<{
@@ -122,7 +122,7 @@
 			title: '',
 			amount: 0,
 			paymentDate: billsToEdit[0].paymentDate,
-			user_id: user.id
+			user_id: userId
 		};
 		billsToEdit = [...billsToEdit, newBill];
 	}

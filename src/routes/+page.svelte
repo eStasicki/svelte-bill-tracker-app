@@ -16,7 +16,7 @@
 			data: { user: currentUser }
 		} = await getUser();
 		user = currentUser;
-		if (isUserLoggedIn()) {
+		if (isUserLoggedIn(user)) {
 			await fetchBills();
 		}
 		loading = false;
@@ -24,7 +24,7 @@
 		onAuthStateChange((event, session) => {
 			if (event === 'SIGNED_IN') {
 				user = session?.user ?? null;
-				if (isUserLoggedIn()) {
+				if (isUserLoggedIn(user)) {
 					fetchBills();
 				}
 			} else if (event === 'SIGNED_OUT') {
@@ -35,7 +35,7 @@
 	});
 
 	// Type guard function
-	function isUserLoggedIn(): user is User {
+	function isUserLoggedIn(user: User | null): user is User {
 		return user !== null;
 	}
 
@@ -59,7 +59,7 @@
 	}
 
 	async function fetchBills() {
-		if (!isUserLoggedIn()) return;
+		if (!isUserLoggedIn(user)) return;
 
 		const { data, error } = await supabase
 			.from('bills')
@@ -79,13 +79,13 @@
 	}
 
 	async function handleAddBills(event: CustomEvent<Omit<Bill, 'id' | 'user_id'>[]>) {
-		if (!isUserLoggedIn()) return;
+		if (!isUserLoggedIn(user)) return;
 
 		const newBills = event.detail.map((bill) => {
 			const formattedDate = formatDateForDB(bill.paymentDate);
 			return {
 				...bill,
-				user_id: user.id,
+				user_id: user!.id,
 				paymentDate: formattedDate
 			};
 		});
@@ -103,7 +103,7 @@
 	}
 
 	async function handleUpdateBills() {
-		if (isUserLoggedIn()) {
+		if (isUserLoggedIn(user)) {
 			await fetchBills();
 		}
 	}
@@ -128,7 +128,7 @@
 				<BillForm on:addBills={handleAddBills} />
 			</div>
 			<div class="w-full md:w-1/2">
-				<BillAccordion {bills} on:updateBills={handleUpdateBills} />
+				<BillAccordion userId={user.id} {bills} on:updateBills={handleUpdateBills} />
 			</div>
 		</div>
 	{:else}

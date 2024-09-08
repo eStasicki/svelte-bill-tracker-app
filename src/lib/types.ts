@@ -5,10 +5,3 @@ export interface Bill {
 	paymentDate: string;
 	user_id: string;
 }
-
-export interface BankTransaction {
-	id: string;
-	date: string;
-	amount: number;
-	description: string;
-}

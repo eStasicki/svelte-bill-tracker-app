@@ -18,12 +18,18 @@
 		}
 	}
 
+	function formatDateForDisplay(dateString: string): string {
+		const date = new Date(dateString);
+		return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+	}
+
 	function submitForm() {
 		const validBills = bills.filter((bill) => bill.title && bill.amount > 0);
 		if (validBills.length > 0) {
+			const formattedDate = formatDateForDisplay(paymentDate);
 			dispatch(
 				'addBills',
-				validBills.map((bill) => ({ ...bill, paymentDate }))
+				validBills.map((bill) => ({ ...bill, paymentDate: formattedDate, user_id: '' }))
 			);
 			bills = [{ title: '', amount: 0 }];
 			paymentDate = new Date().toISOString().split('T')[0];

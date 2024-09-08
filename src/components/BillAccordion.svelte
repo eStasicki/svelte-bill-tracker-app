@@ -3,11 +3,12 @@
 	import { Trash, Pencil } from 'svelte-heros';
 	import type { Bill } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
+	import { supabase } from '$lib/supabaseClient';
 
 	export let bills: Bill[];
 
 	const dispatch = createEventDispatcher<{
-		updateBills: Bill[];
+		updateBills: void;
 	}>();
 
 	let showDeleteModal = false;
@@ -51,19 +52,47 @@
 		showDeleteModal = true;
 	}
 
-	function confirmDelete() {
-		if (dateToDelete) {
-			let updatedBills: Bill[];
-			if (billToDelete !== null) {
-				updatedBills = bills.filter((bill) => bill.id !== billToDelete);
-			} else {
-				updatedBills = bills.filter((bill) => formatDate(bill.paymentDate) !== dateToDelete);
+	function formatDateForDB(dateString: string): string {
+		const [day, month, year] = dateString.split('/');
+		return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+	}
+
+	function convertDateFormat(dateString: string): string {
+		const [day, month, year] = dateString.split('/');
+		return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+	}
+
+	async function confirmDelete() {
+		let deletedCount = 0;
+
+		if (billToDelete !== null) {
+			console.log(`Attempting to delete bill with id: ${billToDelete}`);
+			const { error } = await supabase.from('bills').delete().eq('id', billToDelete);
+
+			if (error) {
+				console.error('Error deleting bill:', error);
+				return;
 			}
-			dispatch('updateBills', updatedBills);
-			showDeleteModal = false;
-			dateToDelete = null;
-			billToDelete = null;
+			deletedCount = 1;
+		} else if (dateToDelete) {
+			console.log(`Attempting to delete all bills for date: ${dateToDelete}`);
+			const billsToDelete = groupedBills[dateToDelete];
+			const ids = billsToDelete.map((bill) => bill.id);
+
+			const { error } = await supabase.from('bills').delete().in('id', ids);
+
+			if (error) {
+				console.error('Error deleting bills:', error);
+				return;
+			}
+			deletedCount = ids.length;
 		}
+
+		console.log(`Successfully deleted ${deletedCount} row(s)`);
+		dispatch('updateBills');
+		showDeleteModal = false;
+		dateToDelete = null;
+		billToDelete = null;
 	}
 
 	function openEditModal(date: string) {
@@ -72,13 +101,16 @@
 		showEditModal = true;
 	}
 
-	function confirmEdit() {
+	async function confirmEdit() {
 		if (dateToEdit) {
-			const updatedBills = bills.filter((bill) => formatDate(bill.paymentDate) !== dateToEdit);
-			const newBills = [...updatedBills, ...billsToEdit].sort(
-				(a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()
-			);
-			dispatch('updateBills', newBills);
+			const { error } = await supabase.from('bills').upsert(billsToEdit);
+
+			if (error) {
+				console.error('Error updating bills:', error);
+				return;
+			}
+
+			dispatch('updateBills');
 			showEditModal = false;
 			dateToEdit = null;
 		}
@@ -89,7 +121,8 @@
 			id: Math.max(0, ...bills.map((b) => b.id)) + 1,
 			title: '',
 			amount: 0,
-			paymentDate: billsToEdit[0].paymentDate
+			paymentDate: billsToEdit[0].paymentDate,
+			user_id: user.id
 		};
 		billsToEdit = [...billsToEdit, newBill];
 	}

@@ -1,55 +1,78 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { PlusCircle } from 'lucide-svelte';
+	import { PlusCircle, MinusCircle } from 'lucide-svelte';
 	import type { Bill } from '$lib/types';
 
-	const dispatch = createEventDispatcher<{ addBill: Omit<Bill, 'id'> }>();
+	const dispatch = createEventDispatcher<{ addBills: Omit<Bill, 'id'>[] }>();
 
-	let bills: Omit<Bill, 'id'>[] = [
-		{ title: '', amount: 0, paymentDate: new Date().toISOString().split('T')[0] }
-	];
+	let bills: Array<{ title: string; amount: number }> = [{ title: '', amount: 0 }];
+	let paymentDate = new Date().toISOString().split('T')[0];
 
 	function addBillField() {
-		bills = [
-			...bills,
-			{ title: '', amount: 0, paymentDate: new Date().toISOString().split('T')[0] }
-		];
+		bills = [...bills, { title: '', amount: 0 }];
+	}
+
+	function removeBillField(index: number) {
+		if (index > 0) {
+			bills = bills.filter((_, i) => i !== index);
+		}
 	}
 
 	function submitForm() {
-		bills.forEach((bill) => {
-			if (bill.title && bill.amount > 0 && bill.paymentDate) {
-				dispatch('addBill', bill);
-			}
-		});
-		bills = [{ title: '', amount: 0, paymentDate: new Date().toISOString().split('T')[0] }];
+		const validBills = bills.filter((bill) => bill.title && bill.amount > 0);
+		if (validBills.length > 0) {
+			dispatch(
+				'addBills',
+				validBills.map((bill) => ({ ...bill, paymentDate }))
+			);
+			bills = [{ title: '', amount: 0 }];
+			paymentDate = new Date().toISOString().split('T')[0];
+		}
 	}
 </script>
 
 <form on:submit|preventDefault={submitForm} class="mb-8">
+	<div class="mb-4">
+		<label for="paymentDate" class="block text-sm font-medium text-gray-700">Payment Date</label>
+		<input
+			id="paymentDate"
+			type="date"
+			bind:value={paymentDate}
+			class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+			required
+		/>
+	</div>
+
 	{#each bills as bill, index}
 		<div class="flex items-center mb-4">
 			<input
 				type="text"
 				bind:value={bill.title}
 				placeholder="Bill title"
-				class="p-2 mr-2 border rounded"
+				class="flex-grow p-2 mr-2 border rounded"
 				required
 			/>
 			<input
 				type="number"
 				bind:value={bill.amount}
 				placeholder="Amount"
-				class="p-2 mr-2 border rounded"
+				class="w-24 p-2 mr-2 border rounded"
 				min="0"
 				step="0.01"
 				required
 			/>
-			<input type="date" bind:value={bill.paymentDate} class="p-2 mr-2 border rounded" required />
-			<button type="button" on:click={addBillField} class="text-blue-500">
-				<PlusCircle size={24} />
-			</button>
+			{#if index > 0}
+				<button type="button" on:click={() => removeBillField(index)} class="mr-2 text-red-500">
+					<MinusCircle size={24} />
+				</button>
+			{/if}
+			{#if index === bills.length - 1}
+				<button type="button" on:click={addBillField} class="text-blue-500">
+					<PlusCircle size={24} />
+				</button>
+			{/if}
 		</div>
 	{/each}
+
 	<button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded">Add Bills</button>
 </form>

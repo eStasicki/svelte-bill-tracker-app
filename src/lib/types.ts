@@ -3,7 +3,6 @@ export interface Bill {
 	title: string;
 	amount: number;
 	paymentDate: string;
-	bankTransactionId?: string;
 }
 
 export interface BankTransaction {

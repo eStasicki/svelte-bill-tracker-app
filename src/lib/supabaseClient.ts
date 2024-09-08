@@ -1,7 +1,24 @@
-import { createClient, type Session } from '@supabase/supabase-js';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { createClient } from '@supabase/supabase-js'
 
-export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+const supabaseUrl = import.meta.env.VITE_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+function getRedirectTo() {
+  if (typeof window !== 'undefined') {
+    // Sprawdzamy, czy jesteśmy w środowisku przeglądarki
+    return window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+      ? `${window.location.origin}/auth/callback`
+      : `${window.location.origin}/auth/callback`
+  }
+  // Dla SSR używamy domyślnego URL
+  return '/auth/callback'
+}
 
 export async function testSupabaseConnection() {
 	try {
@@ -16,13 +33,13 @@ export async function testSupabaseConnection() {
 }
 
 export async function signInWithGoogle() {
-	const { data, error } = await supabase.auth.signInWithOAuth({
-		provider: 'google',
-		options: {
-			redirectTo: window.location.origin + '/auth/callback'
-		}
-	});
-	return { data, error };
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: getRedirectTo()
+    }
+  })
+  return { data, error }
 }
 
 export async function signOut() {

@@ -108,7 +108,7 @@
 
 <div class="w-full">
 	<h2 class="mb-4 text-2xl font-bold">Bill History</h2>
-	<Accordion>
+	<Accordion flush>
 		{#each sortedDates as date}
 			<AccordionItem>
 				<svelte:fragment slot="header">
@@ -135,11 +135,11 @@
 				<div class="flex justify-between mt-4">
 					<Button color="blue" on:click={() => openEditModal(date)}>
 						<Pencil class="w-5 h-5 mr-2" />
-						Edit Bills for {date}
+						Edytuj
 					</Button>
 					<Button color="red" on:click={() => openDeleteModal(date)}>
 						<Trash class="w-5 h-5 mr-2" />
-						Delete All Bills for {date}
+						Usuń cały wpis
 					</Button>
 				</div>
 			</AccordionItem>

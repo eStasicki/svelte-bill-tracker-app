@@ -31,9 +31,8 @@
 	}
 </script>
 
-<form on:submit|preventDefault={submitForm} class="mb-8">
+<form on:submit|preventDefault={submitForm}>
 	<div class="mb-4">
-		<label for="paymentDate" class="block text-sm font-medium text-gray-700">Payment Date</label>
 		<input
 			id="paymentDate"
 			type="date"

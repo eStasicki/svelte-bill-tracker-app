@@ -52,11 +52,6 @@
 		showDeleteModal = true;
 	}
 
-	function formatDateForDB(dateString: string): string {
-		const [day, month, year] = dateString.split('/');
-		return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-	}
-
 	function convertDateFormat(dateString: string): string {
 		const [day, month, year] = dateString.split('/');
 		return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -98,33 +93,71 @@
 	function openEditModal(date: string) {
 		dateToEdit = date;
 		billsToEdit = JSON.parse(JSON.stringify(groupedBills[date])); // Deep copy
+		billsToEdit = billsToEdit.map((bill) => ({
+			...bill,
+			paymentDate: convertDateFormat(date) // Ensure correct date format
+		}));
 		showEditModal = true;
 	}
 
 	async function confirmEdit() {
 		if (dateToEdit) {
-			const { error } = await supabase.from('bills').upsert(billsToEdit);
+			const updatePromises = billsToEdit.map(async (bill) => {
+				if (bill.id) {
+					// Aktualizuj istniejący wpis
+					const { error } = await supabase
+						.from('bills')
+						.update({
+							title: bill.title,
+							amount: bill.amount,
+							paymentDate: bill.paymentDate,
+							user_id: userId
+						})
+						.eq('id', bill.id);
 
-			if (error) {
-				console.error('Error updating bills:', error);
-				return;
+					if (error) {
+						console.error('Error updating bill:', error);
+						return false;
+					}
+					return true;
+				} else {
+					// Dodaj nowy wpis
+					const { error } = await supabase.from('bills').insert({
+						title: bill.title,
+						amount: bill.amount,
+						paymentDate: bill.paymentDate,
+						user_id: userId
+					});
+
+					if (error) {
+						console.error('Error adding new bill:', error);
+						return false;
+					}
+					return true;
+				}
+			});
+
+			const results = await Promise.all(updatePromises);
+
+			if (results.every(Boolean)) {
+				console.log('All bills updated successfully');
+				dispatch('updateBills');
+				showEditModal = false;
+				dateToEdit = null;
+			} else {
+				console.error('Some bills failed to update');
 			}
-
-			dispatch('updateBills');
-			showEditModal = false;
-			dateToEdit = null;
 		}
 	}
 
 	function addNewBillToEdit() {
-		const newBill: Bill = {
-			id: Math.max(0, ...bills.map((b) => b.id)) + 1,
+		const newBill: Omit<Bill, 'id'> = {
 			title: '',
 			amount: 0,
-			paymentDate: billsToEdit[0].paymentDate,
+			paymentDate: convertDateFormat(dateToEdit || ''),
 			user_id: userId
 		};
-		billsToEdit = [...billsToEdit, newBill];
+		billsToEdit = [...billsToEdit, newBill as Bill];
 	}
 
 	function removeBillFromEdit(index: number) {
@@ -135,6 +168,12 @@
 		const input = event.target as HTMLInputElement;
 		const value = parseFloat(input.value);
 		billsToEdit[index].amount = isNaN(value) ? 0 : value;
+		billsToEdit = [...billsToEdit]; // Trigger reactivity
+	}
+
+	function handleDateChange(event: Event, index: number) {
+		const input = event.target as HTMLInputElement;
+		billsToEdit[index].paymentDate = input.value;
 		billsToEdit = [...billsToEdit]; // Trigger reactivity
 	}
 </script>
@@ -209,6 +248,12 @@
 				class="mr-2"
 				value={bill.amount}
 				on:input={(e) => handleAmountChange(e, index)}
+			/>
+			<Input
+				type="date"
+				class="mr-2"
+				value={bill.paymentDate}
+				on:input={(e) => handleDateChange(e, index)}
 			/>
 			<button class="text-red-500 hover:text-red-700" on:click={() => removeBillFromEdit(index)}>
 				<Trash class="w-5 h-5" />

@@ -3,12 +3,15 @@
 	import { signInWithGoogle, signOut } from '$lib/supabaseClient';
 	import type { User } from '@supabase/supabase-js';
 	import { Avatar, Dropdown, DropdownHeader, DropdownItem, DropdownDivider } from 'flowbite-svelte';
+	import { twMerge } from 'tailwind-merge';
 
 	export let user: User | null;
+	export let customClass = '';
+	export let buttonCustomClass = '';
 
 	const dispatch = createEventDispatcher();
 
-	async function handleSignIn() {
+	export async function handleSignIn() {
 		try {
 			await signInWithGoogle();
 		} catch (error) {
@@ -16,7 +19,7 @@
 		}
 	}
 
-	async function handleSignOut() {
+	export async function handleSignOut() {
 		const { error } = await signOut();
 		if (error) {
 			console.error('Error signing out:', error);
@@ -26,7 +29,7 @@
 	}
 </script>
 
-<div class="flex items-center justify-between px-3">
+<div class={twMerge('hidden md:flex items-center justify-between px-3', customClass)}>
 	{#if user}
 		<Avatar
 			id="user-drop"
@@ -39,12 +42,13 @@
 				<span class="block text-sm">{user.user_metadata.name}</span>
 				<span class="block truncate text-sm font-medium">{user.email}</span>
 			</DropdownHeader>
-			<DropdownItem>Ustawienia</DropdownItem>
 			<DropdownDivider />
 			<DropdownItem on:click={handleSignOut}>Wyloguj się</DropdownItem>
 		</Dropdown>
 	{:else}
-		<button on:click={handleSignIn} class="px-4 py-2 text-white bg-blue-500 rounded"
+		<button
+			on:click={handleSignIn}
+			class={twMerge('px-4 py-2 text-white bg-blue-500 rounded', buttonCustomClass)}
 			>Zaloguj się</button
 		>
 	{/if}

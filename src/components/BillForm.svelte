@@ -43,41 +43,60 @@
 			id="paymentDate"
 			type="date"
 			bind:value={paymentDate}
-			class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+			class="block w-full mt-1 rounded-md bg-white bg-opacity-20 text-white"
 			required
 		/>
 	</div>
 
 	{#each bills as bill, index}
-		<div class="flex items-center mb-4">
-			<input
-				type="text"
-				bind:value={bill.title}
-				placeholder="Bill title"
-				class="flex-grow p-2 mr-2 border rounded"
-				required
-			/>
-			<input
-				type="number"
-				bind:value={bill.amount}
-				placeholder="Amount"
-				class="w-24 p-2 mr-2 border rounded"
-				min="0"
-				step="0.01"
-				required
-			/>
+		<div
+			class="items-center flex-col md:flex-row mb-4 bg-white p-3 rounded-md bg-opacity-15 flex gap-2"
+		>
+			<div class="flex flex-col w-full gap-2">
+				<label for="" class="block md:hidden text-white">Tytuł płatności:</label>
+				<input
+					type="text"
+					bind:value={bill.title}
+					placeholder="Tytuł płatności"
+					class="flex-grow p-2 border rounded"
+					required
+				/>
+			</div>
+			<div class="flex flex-col w-full gap-2">
+				<label for="" class="block md:hidden text-white">Wartość</label>
+				<input
+					type="number"
+					bind:value={bill.amount}
+					placeholder="Wartość"
+					class="w-full p-2 border rounded"
+					min="0"
+					step="0.01"
+					required
+				/>
+			</div>
 			{#if index > 0}
-				<button type="button" on:click={() => removeBillField(index)} class="mr-2 text-red-500">
+				<button type="button" on:click={() => removeBillField(index)} class=" text-red-500">
 					<MinusCircle size={24} />
 				</button>
 			{/if}
 			{#if index === bills.length - 1}
-				<button type="button" on:click={addBillField} class="text-blue-500">
+				<button type="button" on:click={addBillField} class="text-white">
 					<PlusCircle size={24} />
 				</button>
 			{/if}
 		</div>
 	{/each}
 
-	<button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded">Add Bills</button>
+	<button
+		type="submit"
+		class="px-4 py-2 md:py-4 md:text-2xl font-light text-white bg-green-500 md:hover:bg-green-600 rounded w-full md:transition-colors"
+		>Dodaj</button
+	>
 </form>
+
+<style>
+	::-webkit-calendar-picker-indicator {
+		filter: invert(1);
+		cursor: pointer;
+	}
+</style>

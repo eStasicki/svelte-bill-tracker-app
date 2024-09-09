@@ -116,8 +116,10 @@
 </script>
 
 <main class="container p-4 mx-auto lg:max-w-4xl bg-[#3F3F45] rounded-xl flex flex-col gap-4">
-	<div class="bg-[#52525B] rounded-xl flex flex-col md:flex-row justify-between">
-		<h1 class="m-0 text-3xl font-bold text-white p-3">Śledzenie rachunków</h1>
+	<div class="bg-[#52525B] rounded-xl flex flex-row justify-between">
+		<h1 class="m-0 text-xl md:text-3xl font-bold text-white p-3">
+			{user ? 'Śledzenie rachunków' : 'Wymagane logowanie'}
+		</h1>
 		<Auth {user} on:signOut={handleSignOut} />
 	</div>
 
@@ -140,6 +142,14 @@
 			{/if}
 		</div>
 	{:else}
-		<p class="text-white">Zaloguj się przez Google aby uzyskać dostęp do aplikacji</p>
+		<p class="text-white bg-green-500 rounded-md p-3 text-center">
+			Zaloguj się przez Google aby uzyskać dostęp do aplikacji
+		</p>
+		<Auth
+			{user}
+			on:signOut={handleSignOut}
+			customClass="!flex md:!hidden px-0 w-full"
+			buttonCustomClass="w-full"
+		/>
 	{/if}
 </main>

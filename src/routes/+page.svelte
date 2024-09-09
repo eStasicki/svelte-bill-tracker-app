@@ -115,14 +115,14 @@
 	}
 </script>
 
-<main class="container p-4 mx-auto lg:max-w-4xl bg-[#3F3F45] rounded-xl">
-	<h1 class="mb-4 text-3xl font-bold bg-[#52525B] rounded-xl text-white p-3">
-		Home Budget Tracker
-	</h1>
-	<Auth {user} on:signOut={handleSignOut} />
+<main class="container p-4 mx-auto lg:max-w-4xl bg-[#3F3F45] rounded-xl flex flex-col gap-4">
+	<div class="bg-[#52525B] rounded-xl flex flex-col md:flex-row justify-between">
+		<h1 class="m-0 text-3xl font-bold text-white p-3">Śledzenie rachunków</h1>
+		<Auth {user} on:signOut={handleSignOut} />
+	</div>
 
 	{#if loading}
-		<p class="text-white">Loading...</p>
+		<p class="text-white">Wczytywanie...</p>
 	{:else if user}
 		<div class="flex flex-col gap-4 md:flex-row">
 			<div
@@ -140,6 +140,6 @@
 			{/if}
 		</div>
 	{:else}
-		<p class="text-white">Please log in to access the application.</p>
+		<p class="text-white">Zaloguj się przez Google aby uzyskać dostęp do aplikacji</p>
 	{/if}
 </main>

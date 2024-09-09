@@ -29,7 +29,7 @@
 	}
 </script>
 
-<div class={twMerge('hidden md:flex items-center justify-between px-3', customClass)}>
+<div class={twMerge('flex items-center justify-between px-3', customClass)}>
 	{#if user}
 		<Avatar
 			id="user-drop"

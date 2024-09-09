@@ -227,56 +227,20 @@
 			</div>
 		{/each}
 	</div>
-
-	<!-- <Accordion>
-		{#each sortedDates as date}
-			<AccordionItem classActive="bg-[red]">
-				<svelte:fragment slot="header">
-					{date} - Total: ${calculateTotal(groupedBills[date]).toFixed(2)}
-				</svelte:fragment>
-				<ul class="space-y-2">
-					{#each groupedBills[date] as bill}
-						<li class="flex items-center justify-between">
-							<span>{bill.title}</span>
-							<div class="flex items-center">
-								<span class="mr-2"
-									>${typeof bill.amount === 'number' ? bill.amount.toFixed(2) : '0.00'}</span
-								>
-								<button
-									class="mr-2 text-red-500 hover:text-red-700"
-									on:click|stopPropagation={() => openDeleteModal(date, bill.id)}
-								>
-									<Trash class="w-4 h-4" />
-								</button>
-							</div>
-						</li>
-					{/each}
-				</ul>
-				<div class="flex justify-between mt-4">
-					<Button color="blue" on:click={() => openEditModal(date)}>
-						<Pencil class="w-5 h-5" />
-					</Button>
-					<Button color="red" on:click={() => openDeleteModal(date)}>
-						<Trash class="w-5 h-5" />
-					</Button>
-				</div>
-			</AccordionItem>
-		{/each}
-	</Accordion> -->
 </div>
 
 <Modal bind:open={showDeleteModal} autoclose>
 	<div class="text-center">
 		<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
 			{#if billToDelete !== null}
-				Are you sure you want to delete this bill?
+				Jesteś pewny że chcesz usunąć ten rachunek?
 			{:else}
-				Are you sure you want to delete all bills for {dateToDelete}?
+				Jesteś pewny usunięcia całego rachunku dla dnia {dateToDelete}?
 			{/if}
 		</h3>
 		<div class="flex justify-center gap-4">
-			<Button color="red" on:click={confirmDelete}>Yes, I'm sure</Button>
-			<Button color="alternative" on:click={() => (showDeleteModal = false)}>No, cancel</Button>
+			<Button color="red" on:click={confirmDelete}>Tak, usuń to</Button>
+			<Button color="alternative" on:click={() => (showDeleteModal = false)}>Nie, anuluj</Button>
 		</div>
 	</div>
 </Modal>
@@ -307,10 +271,10 @@
 		</div>
 	{/each}
 	<div class="mt-4">
-		<Button on:click={addNewBillToEdit}>Add New Bill</Button>
+		<Button on:click={addNewBillToEdit}>Dodaj</Button>
 	</div>
 	<div class="flex justify-end mt-6 space-x-2">
-		<Button color="alternative" on:click={() => (showEditModal = false)}>Cancel</Button>
-		<Button color="blue" on:click={confirmEdit}>Save Changes</Button>
+		<Button color="alternative" on:click={() => (showEditModal = false)}>Anuluj</Button>
+		<Button color="blue" on:click={confirmEdit}>Zapisz zmiany</Button>
 	</div>
 </Modal>

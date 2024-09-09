@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-	@apply bg-black h-screen flex items-center justify-center;
+	@apply bg-black h-screen flex items-start md:items-center justify-center p-4;
 }

@@ -60,7 +60,8 @@
 		"@supabase/supabase-js": "^2.45.3",
 		"chart.js": "^3.7.0",
 		"date-fns": "^2.29.3",
-		"lucide-svelte": "^0.439.0"
+		"lucide-svelte": "^0.439.0",
+		"tailwind-merge": "^2.5.2"
 	},
 	"type": "module"
 }

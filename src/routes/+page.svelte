@@ -6,6 +6,7 @@
 	import Auth from '$components/Auth.svelte';
 	import type { Bill } from '$lib/types';
 	import type { User } from '@supabase/supabase-js';
+	import { twMerge } from 'tailwind-merge';
 
 	let bills: Bill[] = [];
 	let user: User | null = null;
@@ -123,13 +124,20 @@
 	{#if loading}
 		<p class="text-white">Loading...</p>
 	{:else if user}
-		<div class="flex flex-col gap-8 md:flex-row">
-			<div class="w-full md:w-1/2 bg-[#52525B] rounded-xl p-4">
+		<div class="flex flex-col gap-4 md:flex-row">
+			<div
+				class={twMerge(
+					'w-full md:w-1/2 bg-[#52525B] rounded-xl p-4',
+					bills.length > 0 ? 'md:w-1/2' : 'md:w-full'
+				)}
+			>
 				<BillForm on:addBills={handleAddBills} />
 			</div>
-			<div class="w-full md:w-1/2">
-				<BillAccordion userId={user.id} {bills} on:updateBills={handleUpdateBills} />
-			</div>
+			{#if bills.length > 0}
+				<div class="w-full md:w-1/2">
+					<BillAccordion userId={user.id} {bills} on:updateBills={handleUpdateBills} />
+				</div>
+			{/if}
 		</div>
 	{:else}
 		<p class="text-white">Please log in to access the application.</p>

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Accordion, AccordionItem, Button, Modal, Input } from 'flowbite-svelte';
-	import { Trash, Pencil } from 'svelte-heros';
+	import { twMerge } from 'tailwind-merge';
+	import { Button, Modal, Input } from 'flowbite-svelte';
+	import { Trash } from 'svelte-heros';
 	import type { Bill } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
@@ -178,11 +179,58 @@
 	}
 </script>
 
-<div class="w-full">
-	<h2 class="mb-4 text-2xl font-bold">Bill History</h2>
-	<Accordion flush>
+<div class="w-full bg-[#52525B] p-4 rounded-xl">
+	<h2 class="mb-4 text-xl font-bold text-white">Historia rachunków</h2>
+
+	<div class="flex flex-col gap-3">
 		{#each sortedDates as date}
-			<AccordionItem>
+			<div>
+				<div
+					class="flex justify-between bg-[#1380ED] text-white p-2 rounded-tl-md rounded-tr-md text-lg items-center"
+				>
+					<div class="font-bold">{date}</div>
+					<div class="text-sm">{calculateTotal(groupedBills[date]).toFixed(2)} PLN</div>
+				</div>
+				<div>
+					<div>
+						{#each groupedBills[date] as bill, index}
+							<div
+								class={twMerge(
+									'flex flex-col px-2 py-3 bg-[#223548] text-white text-sm',
+									index > 0 && 'pt-0'
+								)}
+							>
+								<div class="flex justify-between w-full">
+									<span>{bill.title}</span>
+									<div class="flex items-center">
+										<span class="mr-2"
+											>{typeof bill.amount === 'number' ? bill.amount.toFixed(2) : '0.00'}</span
+										>
+										<button
+											class=" text-red-500 hover:text-red-700"
+											on:click|stopPropagation={() => openDeleteModal(date, bill.id)}
+										>
+											<Trash class="w-4 h-4" />
+										</button>
+									</div>
+								</div>
+							</div>
+						{/each}
+					</div>
+					<div
+						class="flex justify-between w-full text-sm py-3 px-2 border-t border-white border-opacity-30 bg-[#223548] bg-opacity-50 text-white rounded-br-md rounded-bl-md"
+					>
+						<button on:click={() => openEditModal(date)}>Edytuj miesiąc</button>
+						<button on:click={() => openDeleteModal(date)}>Usuń miesiąc</button>
+					</div>
+				</div>
+			</div>
+		{/each}
+	</div>
+
+	<!-- <Accordion>
+		{#each sortedDates as date}
+			<AccordionItem classActive="bg-[red]">
 				<svelte:fragment slot="header">
 					{date} - Total: ${calculateTotal(groupedBills[date]).toFixed(2)}
 				</svelte:fragment>
@@ -206,17 +254,15 @@
 				</ul>
 				<div class="flex justify-between mt-4">
 					<Button color="blue" on:click={() => openEditModal(date)}>
-						<Pencil class="w-5 h-5 mr-2" />
-						Edytuj
+						<Pencil class="w-5 h-5" />
 					</Button>
 					<Button color="red" on:click={() => openDeleteModal(date)}>
-						<Trash class="w-5 h-5 mr-2" />
-						Usuń cały wpis
+						<Trash class="w-5 h-5" />
 					</Button>
 				</div>
 			</AccordionItem>
 		{/each}
-	</Accordion>
+	</Accordion> -->
 </div>
 
 <Modal bind:open={showDeleteModal} autoclose>

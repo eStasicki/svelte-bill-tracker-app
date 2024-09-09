@@ -247,7 +247,7 @@
 
 <Modal bind:open={showEditModal} size="lg">
 	<h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">
-		Edit Bills for {dateToEdit}
+		Edycja rachunku dla: {dateToEdit}
 	</h3>
 	{#each billsToEdit as bill, index}
 		<div class="flex items-center mb-4">
